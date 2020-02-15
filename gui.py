@@ -36,12 +36,12 @@ class Builder(QMainWindow):
         newMenu = mainMenu.addMenu('New')
         openMenu = mainMenu.addMenu('Open')
 
-        for format in self.config.get_groupings():
-            newAction = QAction("New " + format, self)
-            newAction.triggered.connect(lambda f=self.newWork, arg=self.config.grouping(format): f(arg))
+        for grouping in self.config.get_groupings():
+            newAction = QAction("New " + grouping, self)
+            newAction.triggered.connect(lambda f=self.newWork, arg=self.config.grouping(grouping): f(arg))
             newMenu.addAction(newAction)
-            openAction = QAction("Open " + format, self)        
-            openAction.triggered.connect(lambda f=self.openWork, arg=self.config.grouping(format): f(arg))
+            openAction = QAction("Open " + grouping, self)        
+            openAction.triggered.connect(lambda f=self.openWork, arg=self.config.grouping(grouping): f(arg))
             openMenu.addAction(openAction)
 
         browseAction = QAction("Browse", self)
@@ -93,15 +93,15 @@ class Builder(QMainWindow):
 
         self.mainLayout.addLayout(layout, 2, 0)
 
-    def newWork(self, format):
+    def newWork(self, grouping):
         text, ok = QInputDialog().getText(self, "New Work", "Title:", QLineEdit.Normal)
         if ok and text:
-            location = os.path.join(self.config.get_library_root(), format.value, text)
+            location = os.path.join(self.config.get_library_root(), grouping.value, text)
             if not os.path.exists(location):
                 os.makedirs(location)
 
-    def openWork(self, format):
-        WorkSelector(self, format).show()
+    def openWork(self, grouping):
+        WorkSelector(self, grouping).show()
 
     def browse(self):
         if not self.label.text():
@@ -166,25 +166,25 @@ class Builder(QMainWindow):
                 import_texts(sources, destination, self.config.get_css())
 
 class WorkSelector(QDialog):
-    def __init__(self, parent, format):
+    def __init__(self, parent, grouping):
         super(WorkSelector, self).__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.setWindowTitle("Choose a work to open")
-        self.grouping = format
+        self.grouping = grouping
 
         layout = QVBoxLayout()
 
         model = QFileSystemModel(self)
         model.setReadOnly(True)
-        model.setRootPath(os.path.join(self.parentWidget().config.get_library_root(), format.value))
+        model.setRootPath(os.path.join(self.parentWidget().config.get_library_root(), grouping.value))
         proxyModel = WorkFilterProxyModel(parent=self)
         proxyModel.setDynamicSortFilter(True)
         proxyModel.setSourceModel(model)
 
         view = QTreeView()
         view.setModel(proxyModel)
-        view.setRootIndex(proxyModel.mapFromSource(model.index(os.path.join(self.parentWidget().config.get_library_root(), format.value))))
+        view.setRootIndex(proxyModel.mapFromSource(model.index(os.path.join(self.parentWidget().config.get_library_root(), grouping.value))))
         view.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         view.header().setStretchLastSection(False)
 
