@@ -1,0 +1,20 @@
+{
+	"FORMATS": {
+		"Comic": {
+			"COMICGROUPONE": "FirstGroup"
+		},
+		"Text": {
+			"NOVELGROUPTWO": "SecondGroup"
+		}
+	},
+	"Calibre": {
+		"convert": [ "Calibre Portable/Calibre/ebook-convert.exe" ],
+		"convert-comic-epub": [ "--input-profile default", "--output-profile tablet", "--no-default-epub-cover", "--no-process" ],
+		"convert-html-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover" ],
+		"viewer": [ "Calibre Portable/Calibre/ebook-viewer.exe" ]
+	},
+	"root": "./Library/",
+	"output": "bin",
+	"CSS": "./Library/calibre.css",
+	"covers": [ "cover.png", "cover.jpg" ]
+}
