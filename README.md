@@ -6,7 +6,7 @@ Built on PySide2 for Python 3.7+.
 
 This is an app for managing individual chapters of a work and for quickly building an EPUB from the chapters. Currently, there are two supported formats: comic and text. Comic chapters are stored as .cbz files and text chapters are stored as .html files.
 
-Comic chapters can be imported as folders with images inside. Text chapters can be imported as .txt files which will be converted to .html.
+Comic chapters can be imported as folders with images inside which will be converted to .cbz. Text chapters can be imported as .txt files which will be converted to .html.
 
 Uses Calibre to convert and view EPUBs and a text editor of your choice to edit chapters.
 
@@ -39,8 +39,8 @@ Library
     calibre.css
     FirstGroup
         SomeNovel
-        cover.png
-        Static-image.jpg
+            cover.png
+            Static-image.jpg
     SecondGroup
         SomeComic
             cover.jpg
@@ -53,14 +53,14 @@ Library
     calibre.css
     FirstGroup
         SomeNovel
-        Chapter1.html
-        Chapter2.html
-        cover.png
-        Static-image.jpg
+            Chapter1.html
+            Chapter2.html
+            cover.png
+            Static-image.jpg
     SecondGroup
         SomeComic
-        Chapter1.cbz
-        Chapter2.cbz
-        Cover.jpg
+            Chapter1.cbz
+            Chapter2.cbz
+            Cover.jpg
 ```
 
