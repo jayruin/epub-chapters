@@ -12,7 +12,7 @@ class Config:
     """
     def __init__(self, file):
         """
-	    Initialize Config class with given file.
+        Initialize Config class with given file.
 
         Args:
             file: Path to the json configuration file.
@@ -27,7 +27,7 @@ class Config:
 
     def get_groupings(self):
         """
-	    Get the work groupings.
+        Get the work groupings.
 
         Args:
             No args.
@@ -39,7 +39,7 @@ class Config:
 
     def is_comic(self, grouping):
         """
-	    Checks whether grouping is a comic.
+        Checks whether grouping is a comic.
 
         Args:
             grouping: Str representing the grouping to check.
@@ -53,7 +53,7 @@ class Config:
 
     def is_text(self, grouping):
         """
-	    Checks whether grouping is a text.
+        Checks whether grouping is a text.
 
         Args:
             grouping: Str representing the grouping to check.
@@ -67,7 +67,7 @@ class Config:
 
     def get_library_root(self):
         """
-	    Get library root.
+        Get library root.
 
         Args:
             No args.
@@ -79,7 +79,7 @@ class Config:
 
     def get_library_output(self):
         """
-	    Get library output directory.
+        Get library output directory.
 
         Args:
             No args.
@@ -91,7 +91,7 @@ class Config:
 
     def get_comic_epub_command(self, source, destination, cover):
         """
-	    Get the command for converting a comic to EPUB.
+        Get the command for converting a comic to EPUB.
 
         Args:
             source: Path to the file to convert from.
@@ -109,7 +109,7 @@ class Config:
 
     def get_text_epub_command(self, source, destination, cover):
         """
-	    Get the command for converting a text to EPUB.
+        Get the command for converting a text to EPUB.
 
         Args:
             source: Path to the file to convert from.
@@ -127,7 +127,7 @@ class Config:
 
     def get_view_epub_command(self, epub):
         """
-	    Get the command for viewing an EPUB.
+        Get the command for viewing an EPUB.
 
         Args:
             epub: Path to EPUB file to view.
@@ -139,7 +139,7 @@ class Config:
 
     def get_css(self):
         """
-	    Get the CSS file to use for conversions.
+        Get the CSS file to use for conversions.
 
         Args:
             No args.
@@ -151,7 +151,7 @@ class Config:
 
     def get_covers(self):
         """
-	    Get the possible cover files to use for conversions in search order.
+        Get the possible cover files to use for conversions in search order.
 
         Args:
             No args.

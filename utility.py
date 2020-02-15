@@ -10,14 +10,14 @@ def txt_to_html(txt, entities, css):
 	"""
 	Converts plaintext txt to html and saves it with given css file.
 
-    Args:
-        txt: Plaintext to convert.
-        entities: List of UTF-8 characters to replace with HTML entities.
-        css: Path to the CSS file to include in the HTML output file.
+	Args:
+		txt: Plaintext to convert.
+		entities: List of UTF-8 characters to replace with HTML entities.
+		css: Path to the CSS file to include in the HTML output file.
 
-    Returns:
-        Converted HTML text.
-    """
+	Returns:
+		Converted HTML text.
+	"""
 	entities.remove("\n")
 	content = txt.strip().split("\n\n")
 
@@ -48,13 +48,13 @@ def generate_text_table_of_contents(source, destination):
 	"""
 	Generates a table of contents for text works.
 
-    Args:
-        source: Path to the directory with individual chapters.
+	Args:
+		source: Path to the directory with individual chapters.
 		destination: Path to the directory to place the table of contents.
 
-    Returns:
-        Path to the generated table of contents.
-    """
+	Returns:
+		Path to the generated table of contents.
+	"""
 	title = os.path.basename(os.path.normpath(source))
 	content = "<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset=\"utf-8\">\n"
 	content += "\t<title>{0}</title>\n".format(title)
@@ -93,13 +93,13 @@ def generate_comic_table_of_contents(source, destination):
 	"""
 	Generates a table of contents for comic works.
 
-    Args:
-        source: Path to the directory with individual chapters.
+	Args:
+		source: Path to the directory with individual chapters.
 		destination: Path to the directory to place the table of contents.
 
-    Returns:
-        Path to the generated table of contents.
-    """
+	Returns:
+		Path to the generated table of contents.
+	"""
 	content = ""
 	with os.scandir(source) as it:
 		for entry in sorted(it, key=lambda e: e.name):
@@ -117,14 +117,14 @@ def generate_cbc(source, destination, txt):
 	"""
 	Generates a .cbc file from .cbz files and a comics.txt table of contents.
 
-    Args:
-        source: Path to the directory with individual chapters.
+	Args:
+		source: Path to the directory with individual chapters.
 		destination: Path to the directory to place the table of contents.
 		txt: Path to the comics.txt table of contents file.
 
-    Returns:
-        Path to the generated cbc file.
-    """
+	Returns:
+		Path to the generated cbc file.
+	"""
 	cbc = os.path.join(destination, "{0}.cbc".format(os.path.basename(os.path.normpath(source))))
 	cbc_zip_file = ZipFile(cbc, "w", ZIP_STORED)
 	with os.scandir(source) as it:
@@ -138,13 +138,13 @@ def import_comics(sources, destination):
 	"""
 	Import comic chapters. Each chapter must be either a .cbz file or a directory with images.
 
-    Args:
-        sources: List of paths to the individual chapters to import.
+	Args:
+		sources: List of paths to the individual chapters to import.
 		destination: Path to the directory to place the chapters.
 
-    Returns:
-        Nothing.
-    """
+	Returns:
+		Nothing.
+	"""
 	for source in sources:
 		if not os.path.isdir(source):
 			ext = os.path.splitext(source)[1]
@@ -165,13 +165,13 @@ def import_texts(sources, destination, css):
 	"""
 	Import text chapters. Each chapter must be either a .txt or .html file.
 
-    Args:
-        sources: List of paths to the individual chapters to import.
+	Args:
+		sources: List of paths to the individual chapters to import.
 		destination: Path to the directory to place the chapters.
 
-    Returns:
-        Nothing.
-    """
+	Returns:
+		Nothing.
+	"""
 	entities = set([v for v in html5.values() if len(v) == 1])
 	for source in sources:
 		if not os.path.isdir(source):
@@ -187,13 +187,13 @@ def find_cover(folder, cover_names):
 	"""
 	Search folder for a cover, with filename from cover_names.
 
-    Args:
-        folder: Path to the directory to search.
+	Args:
+		folder: Path to the directory to search.
 		cover_names: List of possible cover filenames to search for.
 
-    Returns:
-        First cover found, nothing if no cover exists.
-    """
+	Returns:
+		First cover found, nothing if no cover exists.
+	"""
 	for candidate_cover in cover_names:
 		if os.path.isfile(os.path.join(folder, candidate_cover)):
 			return os.path.abspath(os.path.join(folder, candidate_cover))
@@ -224,14 +224,14 @@ def build_text(source, destination, config):
 	"""
 	Build a text EPUB.
 
-    Args:
-        source: Path to the directory with individual chapters.
+	Args:
+		source: Path to the directory with individual chapters.
 		destination: Path to the directory to place the EPUB.
 		config: The Config configuration file to use.
 
-    Returns:
-        Nothing.
-    """
+	Returns:
+		Nothing.
+	"""
 	html = generate_text_table_of_contents(source, destination)
 	cover = find_cover(source, config.get_covers())
 	command = config.get_text_epub_command(html, "{0}.epub".format(os.path.splitext(html)[0]), cover)
@@ -242,13 +242,13 @@ def find_epub(folder, title):
 	"""
 	Find the EPUB.
 
-    Args:
-        folder: Path to the directory to search.
+	Args:
+		folder: Path to the directory to search.
 		title: The filename without extension of the EPUB to search for.
 
-    Returns:
-        Path to the EPUB if one is found, nothing otherwise.
-    """
+	Returns:
+		Path to the EPUB if one is found, nothing otherwise.
+	"""
 	epub = os.path.join(folder, "{0}.epub".format(title))
 	if os.path.isfile(epub):
 		return epub
@@ -258,12 +258,12 @@ def open_epub(epub, config):
 	"""
 	Open the EPUB.
 
-    Args:
-        epub: Path to the EPUB to open.
+	Args:
+		epub: Path to the EPUB to open.
 		config: The Config configuration file to use.
 
-    Returns:
-        Nothing.
-    """
+	Returns:
+		Nothing.
+	"""
 	command = config.get_view_epub_command(epub)
 	subprocess.run(command)
