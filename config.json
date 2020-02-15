@@ -8,10 +8,10 @@
 		}
 	},
 	"Calibre": {
-		"convert": [ "Calibre Portable/Calibre/ebook-convert.exe" ],
-		"convert-comic-epub": [ "--input-profile default", "--output-profile tablet", "--no-default-epub-cover", "--no-process" ],
+		"convert": [ "ebook-convert" ],
+		"convert-comic-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover", "--no-process" ],
 		"convert-html-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover" ],
-		"viewer": [ "Calibre Portable/Calibre/ebook-viewer.exe" ]
+		"viewer": [ "ebook-viewer" ]
 	},
 	"root": "./Library/",
 	"output": "bin",

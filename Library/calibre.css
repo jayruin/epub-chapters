@@ -1,0 +1,45 @@
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+    font-family: sans-serif;
+}
+
+p {
+    font-family: serif;
+}
+
+body {
+    text-indent: 0;
+}
+
+.img-full {
+    text-align: center;
+    page-break-after: always;
+    page-break-inside: avoid;
+    clear: both;
+    padding: 0px;
+    margin: 0em auto;
+    height: 95%;
+}
+
+.img-full img {
+    page-break-inside: avoid;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+hr {
+    border: none;
+    border-top: 3px double #333;
+    color: #333;
+    overflow: visible;
+    text-align: center;
+    height: 5px;
+}
+
+hr:after {
+    background: #fff;
+    content: '§';
+    padding: 0 4px;
+    position: relative;
+    top: -13px;
+}
