@@ -190,7 +190,7 @@ class Library:
             Nothing.
         """
         html = generate_text_table_of_contents(source, destination)
-        cover = find_cover(source, self._covers())
+        cover = find_cover(source, self._covers)
         command = self.get_text_epub_command(html, "{0}.epub".format(os.path.splitext(html)[0]), cover)
         subprocess.run(command)
         os.remove(html)
