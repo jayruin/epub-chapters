@@ -4,11 +4,7 @@ from enum import Enum
 import os
 import os.path
 import errno
-import math
 import subprocess
-import shutil
-from zipfile import *
-from html.entities import *
 
 from utility import *
 
@@ -255,8 +251,8 @@ class Library:
         Imports chapters for a given grouping and work.
 
         Args:
-            grouping: Grouping enum representing the grouping of the new work.
-            work: Name of the new work as str.
+            grouping: Grouping enum representing the grouping of the work.
+            work: Name of the work as str.
             chapters: List of paths to the individual chapters to import.
 
         Returns:

@@ -1,5 +1,4 @@
 from library import *
-from utility import *
 from filters import *
 
 import os.path
