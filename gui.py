@@ -1,4 +1,4 @@
-from config import *
+from library import *
 from utility import *
 from filters import *
 
@@ -10,10 +10,10 @@ from shiboken2 import *
 
 
 class Builder(QMainWindow):
-    def __init__(self, config, parent=None):
+    def __init__(self, library, parent=None):
         super(Builder, self).__init__(parent)
 
-        self.config = config
+        self.library = library
         self.grouping = None
 
         QApplication.setStyle("Fusion")
@@ -36,12 +36,12 @@ class Builder(QMainWindow):
         newMenu = mainMenu.addMenu('New')
         openMenu = mainMenu.addMenu('Open')
 
-        for grouping in self.config.get_groupings():
+        for grouping in self.library.all_groupings:
             newAction = QAction("New " + grouping, self)
-            newAction.triggered.connect(lambda f=self.newWork, arg=self.config.grouping(grouping): f(arg))
+            newAction.triggered.connect(lambda f=self.newWork, arg=self.library.grouping(grouping): f(arg))
             newMenu.addAction(newAction)
             openAction = QAction("Open " + grouping, self)        
-            openAction.triggered.connect(lambda f=self.openWork, arg=self.config.grouping(grouping): f(arg))
+            openAction.triggered.connect(lambda f=self.openWork, arg=self.library.grouping(grouping): f(arg))
             openMenu.addAction(openAction)
 
         browseAction = QAction("Browse", self)
@@ -96,7 +96,7 @@ class Builder(QMainWindow):
     def newWork(self, grouping):
         text, ok = QInputDialog().getText(self, "New Work", "Title:", QLineEdit.Normal)
         if ok and text:
-            location = os.path.join(self.config.get_library_root(), grouping.value, text)
+            location = os.path.join(self.library.root_directory, grouping.value, text)
             if not os.path.exists(location):
                 os.makedirs(location)
 
@@ -105,28 +105,28 @@ class Builder(QMainWindow):
 
     def browse(self):
         if not self.label.text():
-            url = QUrl.fromLocalFile(os.path.abspath(self.config.get_library_root()))
+            url = QUrl.fromLocalFile(os.path.abspath(self.library.root_directory))
         else:
-            url = QUrl.fromLocalFile(os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text()))).url()
+            url = QUrl.fromLocalFile(os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))).url()
         QDesktopServices.openUrl(url)
 
     def buildEPUB(self):
-        source = os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text()))
-        destination = os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text(), self.config.get_library_output()))
+        source = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
+        destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text(), self.library.output_directory))
         if not self.grouping:
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "No work has been selected!")
             messageBox.exec()
-        elif self.config.is_comic(self.grouping):
-            build_comic(source, destination, self.config)
-        elif self.config.is_text(self.grouping):
-            build_text(source, destination, self.config)
+        elif self.library.is_comic(self.grouping):
+            self.library.build_comic(source, destination)
+        elif self.library.is_text(self.grouping):
+            self.library.build_text(source, destination)
 
     def openEPUB(self):
-        folder = os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text(), self.config.get_library_output()))
+        folder = os.path.abspath(os.path.join(self.library.root_directory, self.label.text(), self.library.output_directory))
         title = os.path.basename(os.path.normpath(self.label.text()))
         epub = find_epub(folder, title)
         if epub:
-            open_epub(epub, self.config)
+            self.library.open_epub(epub)
         else:
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "No EPUB found!")
             messageBox.exec()
@@ -135,8 +135,8 @@ class Builder(QMainWindow):
         if not self.grouping:
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "No work has been selected!")
             messageBox.exec()
-        elif self.config.is_comic(self.grouping):
-            destination = os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text()))
+        elif self.library.is_comic(self.grouping):
+            destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
             dialog = QFileDialog(self, "Import Comic", directory=destination)
             dialog.setFileMode(QFileDialog.DirectoryOnly)
             dialog.setOption(QFileDialog.DontUseNativeDialog)
@@ -151,8 +151,8 @@ class Builder(QMainWindow):
                 sources = dialog.selectedFiles()
                 import_comics(sources, destination)
 
-        elif self.config.is_text(self.grouping):
-            destination = os.path.abspath(os.path.join(self.config.get_library_root(), self.label.text()))
+        elif self.library.is_text(self.grouping):
+            destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
             dialog = QFileDialog(self, "Import Text", directory=destination)
             dialog.setOption(QFileDialog.DontUseNativeDialog)
             dialog.setProxyModel(FileFilterProxyModel([".txt", ".html"], parent=dialog))
@@ -163,7 +163,7 @@ class Builder(QMainWindow):
 
             if dialog.exec() == QDialog.Accepted:
                 sources = dialog.selectedFiles()
-                import_texts(sources, destination, self.config.get_css())
+                import_texts(sources, destination, self.library.css_file)
 
 class WorkSelector(QDialog):
     def __init__(self, parent, grouping):
@@ -177,14 +177,14 @@ class WorkSelector(QDialog):
 
         model = QFileSystemModel(self)
         model.setReadOnly(True)
-        model.setRootPath(os.path.join(self.parentWidget().config.get_library_root(), grouping.value))
+        model.setRootPath(os.path.join(self.parentWidget().library.root_directory, grouping.value))
         proxyModel = WorkFilterProxyModel(parent=self)
         proxyModel.setDynamicSortFilter(True)
         proxyModel.setSourceModel(model)
 
         view = QTreeView()
         view.setModel(proxyModel)
-        view.setRootIndex(proxyModel.mapFromSource(model.index(os.path.join(self.parentWidget().config.get_library_root(), grouping.value))))
+        view.setRootIndex(proxyModel.mapFromSource(model.index(os.path.join(self.parentWidget().library.root_directory, grouping.value))))
         view.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         view.header().setStretchLastSection(False)
 
@@ -205,9 +205,9 @@ class WorkSelector(QDialog):
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "Invalid selection!")
             messageBox.exec()
         else:
-            if self.parentWidget().config.is_comic(self.grouping):
+            if self.parentWidget().library.is_comic(self.grouping):
                 self.parentWidget().proxyModel = FileFilterProxyModel([".cbz"], dirs=False, parent=self.parentWidget())
-            elif self.parentWidget().config.is_text(self.grouping):
+            elif self.parentWidget().library.is_text(self.grouping):
                 self.parentWidget().proxyModel = FileFilterProxyModel([".html"], dirs=False, parent=self.parentWidget())
             else:
                 messageBox = QMessageBox(QMessageBox.Critical, "Error", "Invalid selection!")

@@ -199,45 +199,6 @@ def find_cover(folder, cover_names):
 			return os.path.abspath(os.path.join(folder, candidate_cover))
 	return None
 
-def build_comic(source, destination, config):
-	"""
-	Build a comic EPUB.
-
-    Args:
-        source: Path to the directory with individual chapters.
-		destination: Path to the directory to place the EPUB.
-		config: The Config configuration file to use.
-
-    Returns:
-        Nothing.
-    """
-	txt = generate_comic_table_of_contents(source, destination)
-	cover = find_cover(source, config.get_covers())
-	cbc = generate_cbc(source, destination, txt)
-	command = config.get_comic_epub_command(cbc, "{0}.epub".format(os.path.splitext(cbc)[0]), cover)
-	subprocess.run(command)
-	os.remove(txt)
-	os.remove(cbc)
-	
-
-def build_text(source, destination, config):
-	"""
-	Build a text EPUB.
-
-	Args:
-		source: Path to the directory with individual chapters.
-		destination: Path to the directory to place the EPUB.
-		config: The Config configuration file to use.
-
-	Returns:
-		Nothing.
-	"""
-	html = generate_text_table_of_contents(source, destination)
-	cover = find_cover(source, config.get_covers())
-	command = config.get_text_epub_command(html, "{0}.epub".format(os.path.splitext(html)[0]), cover)
-	subprocess.run(command)
-	os.remove(html)
-
 def find_epub(folder, title):
 	"""
 	Find the EPUB.
@@ -253,17 +214,3 @@ def find_epub(folder, title):
 	if os.path.isfile(epub):
 		return epub
 	return None
-
-def open_epub(epub, config):
-	"""
-	Open the EPUB.
-
-	Args:
-		epub: Path to the EPUB to open.
-		config: The Config configuration file to use.
-
-	Returns:
-		Nothing.
-	"""
-	command = config.get_view_epub_command(epub)
-	subprocess.run(command)
