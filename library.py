@@ -7,6 +7,7 @@ import errno
 import subprocess
 
 from utility import *
+from metadata import *
 
 class Library:
     """
@@ -263,3 +264,35 @@ class Library:
             import_comics(chapters, destination)
         elif self.is_text(grouping):
             import_texts(chapters, destination, self._css_file)
+    
+    def load_metadata(self, grouping, work):
+        """
+        Load metadata for a given grouping and work.
+
+        Args:
+            grouping: Grouping enum representing the grouping of the work.
+            work: Name of the work as str.
+
+        Returns:
+            Metadata: The metadata.
+        """
+        metadata_json_file = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, "metadata.json"))
+        if os.path.isfile(metadata_json_file):
+            with open(metadata_json_file, "r") as f:
+                return Metadata(**json.load(f))
+    
+    def save_metadata(self, grouping, work, metadata):
+        """
+        Save metadata for a given grouping and work.
+
+        Args:
+            grouping: Grouping enum representing the grouping of the work.
+            work: Name of the work as str.
+            metadata: Metadata object to save.
+
+        Returns:
+            Nothing.
+        """
+        metadata_json_file = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, "metadata.json"))
+        with open(metadata_json_file, "w") as f:
+            f.write(metadata.to_json())

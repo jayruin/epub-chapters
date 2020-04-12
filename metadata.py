@@ -41,4 +41,4 @@ class Metadata:
     chapters: List[str]=None
 
     def to_json(self):
-        return json.dumps(self.__dict__, indent=4)
+        return json.dumps({k: v for k, v in self.__dict__.items() if v}, indent=4)
