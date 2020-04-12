@@ -3,6 +3,7 @@ from enum import Enum
 
 import os
 import os.path
+import errno
 import math
 import subprocess
 import shutil
@@ -158,7 +159,7 @@ class Library:
         """
         return [*self._calibre_settings["viewer"], *[epub]]
 
-    def build_comic(self, source, destination):
+    def build_comic_epub(self, source, destination):
         """
         Build a comic EPUB.
 
@@ -177,7 +178,7 @@ class Library:
         os.remove(txt)
         os.remove(cbc)
     
-    def build_text(self, source, destination):
+    def build_text_epub(self, source, destination):
         """
         Build a text EPUB.
 
@@ -194,15 +195,57 @@ class Library:
         subprocess.run(command)
         os.remove(html)
     
-    def open_epub(self, epub):
+    def build_epub(self, grouping, work):
         """
-        Open the EPUB.
+        Build the EPUB for a given grouping and work.
 
         Args:
-            epub: Path to the EPUB to open.
+            grouping: Grouping enum representing the grouping of the work.
+            work: Name of the work as str.
 
         Returns:
             Nothing.
         """
-        command = self.get_view_epub_command(epub)
-        subprocess.run(command)
+        source = os.path.abspath(os.path.join(self._root_directory, grouping.value, work))
+        destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self.library.output_directory))
+        if self.is_comic(self.grouping):
+            self.build_comic_epub(source, destination)
+        elif self.is_text(self.grouping):
+            self.build_text_epub(source, destination)
+    
+    def open_epub(self, grouping, work):
+        """
+        Open the EPUB for a given grouping and work.
+
+        Args:
+            grouping: Grouping enum representing the grouping of the new work.
+            work: Name of the new work as str.
+
+        Returns:
+            Nothing.
+        
+        Raises:
+            FileNotFoundError: If no EPUB file can be found.
+        """
+        folder = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self._output_directory))
+        epub = os.path.join(folder, "{0}.epub".format(work))
+        if os.path.isfile(epub):
+            command = self.get_view_epub_command(epub)
+            subprocess.run(command)
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), epub)
+    
+    def create_work(self, grouping, work):
+        """
+        Create a new work.
+
+        Args:
+            grouping: Grouping enum representing the grouping of the new work.
+            work: Name of the new work as str.
+
+        Returns:
+            Nothing.
+        """
+        location = os.path.join(self._root_directory, grouping.value, work)
+        if not os.path.exists(location):
+            os.makedirs(location)

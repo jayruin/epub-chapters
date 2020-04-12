@@ -15,6 +15,7 @@ class Builder(QMainWindow):
 
         self.library = library
         self.grouping = None
+        self.work = None
 
         QApplication.setStyle("Fusion")
         QApplication.setPalette(QApplication.style().standardPalette())
@@ -96,9 +97,7 @@ class Builder(QMainWindow):
     def newWork(self, grouping):
         text, ok = QInputDialog().getText(self, "New Work", "Title:", QLineEdit.Normal)
         if ok and text:
-            location = os.path.join(self.library.root_directory, grouping.value, text)
-            if not os.path.exists(location):
-                os.makedirs(location)
+            self.library.create_work(grouping, text)
 
     def openWork(self, grouping):
         WorkSelector(self, grouping).show()
@@ -111,23 +110,16 @@ class Builder(QMainWindow):
         QDesktopServices.openUrl(url)
 
     def buildEPUB(self):
-        source = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
-        destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text(), self.library.output_directory))
         if not self.grouping:
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "No work has been selected!")
             messageBox.exec()
-        elif self.library.is_comic(self.grouping):
-            self.library.build_comic(source, destination)
-        elif self.library.is_text(self.grouping):
-            self.library.build_text(source, destination)
+        else:
+            self.library.build_epub(self.grouping, self.work)
 
     def openEPUB(self):
-        folder = os.path.abspath(os.path.join(self.library.root_directory, self.label.text(), self.library.output_directory))
-        title = os.path.basename(os.path.normpath(self.label.text()))
-        epub = find_epub(folder, title)
-        if epub:
-            self.library.open_epub(epub)
-        else:
+        try:
+            self.library.open_epub(self.grouping, self.work)
+        except FileNotFoundError:
             messageBox = QMessageBox(QMessageBox.Critical, "Error", "No EPUB found!")
             messageBox.exec()
 
@@ -222,8 +214,9 @@ class WorkSelector(QDialog):
             self.parentWidget().model.setRootPath(root)
             self.parentWidget().view.setModel(self.parentWidget().proxyModel)
             self.parentWidget().view.setRootIndex(self.parentWidget().proxyModel.mapFromSource(self.parentWidget().model.index(root)))
-            self.parentWidget().label.setText(os.path.join(self.grouping.value, view.model().sourceModel().fileName(view.model().mapToSource(view.selectedIndexes()[0]))))
             self.parentWidget().grouping = self.grouping
+            self.parentWidget().work = view.model().sourceModel().fileName(view.model().mapToSource(view.selectedIndexes()[0]))
+            self.parentWidget().label.setText(os.path.join(self.grouping.value, self.parentWidget().work))
             self.close()
 
 

@@ -198,19 +198,3 @@ def find_cover(folder, cover_names):
 		if os.path.isfile(os.path.join(folder, candidate_cover)):
 			return os.path.abspath(os.path.join(folder, candidate_cover))
 	return None
-
-def find_epub(folder, title):
-	"""
-	Find the EPUB.
-
-	Args:
-		folder: Path to the directory to search.
-		title: The filename without extension of the EPUB to search for.
-
-	Returns:
-		Path to the EPUB if one is found, nothing otherwise.
-	"""
-	epub = os.path.join(folder, "{0}.epub".format(title))
-	if os.path.isfile(epub):
-		return epub
-	return None
