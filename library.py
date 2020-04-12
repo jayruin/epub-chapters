@@ -207,10 +207,10 @@ class Library:
             Nothing.
         """
         source = os.path.abspath(os.path.join(self._root_directory, grouping.value, work))
-        destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self.library.output_directory))
-        if self.is_comic(self.grouping):
+        destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self._output_directory))
+        if self.is_comic(grouping):
             self.build_comic_epub(source, destination)
-        elif self.is_text(self.grouping):
+        elif self.is_text(grouping):
             self.build_text_epub(source, destination)
     
     def open_epub(self, grouping, work):
@@ -249,3 +249,21 @@ class Library:
         location = os.path.join(self._root_directory, grouping.value, work)
         if not os.path.exists(location):
             os.makedirs(location)
+    
+    def import_chapters(self, grouping, work, chapters):
+        """
+        Imports chapters for a given grouping and work.
+
+        Args:
+            grouping: Grouping enum representing the grouping of the new work.
+            work: Name of the new work as str.
+            chapters: List of paths to the individual chapters to import.
+
+        Returns:
+            Nothing.
+        """
+        destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work))
+        if self.is_comic(grouping):
+            import_comics(chapters, destination)
+        elif self.is_text(grouping):
+            import_texts(chapters, destination, self._css_file)

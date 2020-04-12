@@ -130,7 +130,6 @@ class Builder(QMainWindow):
         elif self.library.is_comic(self.grouping):
             destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
             dialog = QFileDialog(self, "Import Comic", directory=destination)
-            dialog.setFileMode(QFileDialog.DirectoryOnly)
             dialog.setOption(QFileDialog.DontUseNativeDialog)
             dialog.setOption(QFileDialog.ShowDirsOnly, False)
             dialog.setProxyModel(FileFilterProxyModel([".cbz"], parent=dialog))
@@ -141,7 +140,7 @@ class Builder(QMainWindow):
 
             if dialog.exec() == QDialog.Accepted:
                 sources = dialog.selectedFiles()
-                import_comics(sources, destination)
+                self.library.import_chapters(self.grouping, self.work, sources)
 
         elif self.library.is_text(self.grouping):
             destination = os.path.abspath(os.path.join(self.library.root_directory, self.label.text()))
@@ -155,7 +154,7 @@ class Builder(QMainWindow):
 
             if dialog.exec() == QDialog.Accepted:
                 sources = dialog.selectedFiles()
-                import_texts(sources, destination, self.library.css_file)
+                self.library.import_chapters(self.grouping, self.work, sources)
 
 class WorkSelector(QDialog):
     def __init__(self, parent, grouping):
