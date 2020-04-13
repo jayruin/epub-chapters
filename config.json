@@ -10,7 +10,7 @@
 	"Calibre": {
 		"convert": [ "ebook-convert" ],
 		"convert-comic-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover", "--no-process" ],
-		"convert-html-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover" ],
+		"convert-html-epub": [ "--input-profile", "default", "--output-profile", "tablet", "--no-default-epub-cover", "--no-chapters-in-toc" ],
 		"viewer": [ "ebook-viewer" ]
 	},
 	"root": "./Library/",
