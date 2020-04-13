@@ -178,8 +178,8 @@ class Library:
         cbc = generate_cbc(chapters, destination, txt, title)
         command = self.get_comic_epub_command(cbc, "{0}.epub".format(os.path.splitext(cbc)[0]), cover, metadata)
         subprocess.run(command)
-        # os.remove(txt)
-        # os.remove(cbc)
+        os.remove(txt)
+        os.remove(cbc)
     
     def build_text_epub(self, source, destination, metadata):
         """
