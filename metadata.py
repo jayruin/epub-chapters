@@ -60,7 +60,7 @@ class Metadata:
             Nothing
 
         Returns:
-            Command line options for building an EPUB using self.
+            List[str]: Command line options for building an EPUB using self.
         """
         options = []
         exclusions = ["chapters"]

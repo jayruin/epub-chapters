@@ -118,7 +118,7 @@ class Library:
             cover: Path to the cover file to use.
 
         Returns:
-            Command list for converting comics to EPUB.
+            List[str]: Command list for converting comics to EPUB.
         """
         if cover is None:
             cover_option = []
@@ -137,7 +137,7 @@ class Library:
             metadata: Metadata object for the work.
 
         Returns:
-            Command list for converting comics to EPUB.
+            List[str]: Command list for converting comics to EPUB.
         """
         if cover is None:
             cover_option = []
@@ -153,7 +153,7 @@ class Library:
             epub: Path to EPUB file to view.
 
         Returns:
-            Command list for viewing an EPUB.
+            List[str]: Command list for viewing an EPUB.
         """
         return [*self._calibre_settings["viewer"], *[epub]]
 
