@@ -87,22 +87,21 @@ def generate_text_table_of_contents(chapters, destination, title):
 		toc.write(content)
 	return html
 
-def generate_comic_table_of_contents(source, destination):
+def generate_comic_table_of_contents(chapters, destination):
 	"""
 	Generates a table of contents for comic works.
 
 	Args:
-		source: Path to the directory with individual chapters.
+		chapters: List of paths to individual chapters.
 		destination: Path to the directory to place the table of contents.
 
 	Returns:
 		Path to the generated table of contents.
 	"""
 	content = ""
-	with os.scandir(source) as it:
-		for entry in sorted(it, key=lambda e: e.name):
-			if entry.is_file() and entry.name.endswith(".cbz"):
-				content += "{0}:{1}\n".format(entry.name, os.path.splitext(os.path.basename(os.path.normpath(entry.name)))[0])
+	for chapter in chapters:
+		filename = os.path.basename(chapter)
+		content += "{0}:{1}\n".format(filename, os.path.splitext(filename)[0])
 
 	if not os.path.exists(destination):
 		os.makedirs(destination)
@@ -111,24 +110,24 @@ def generate_comic_table_of_contents(source, destination):
 		toc.write(content)
 	return txt
 
-def generate_cbc(source, destination, txt):
+def generate_cbc(chapters, destination, txt, title):
 	"""
 	Generates a .cbc file from .cbz files and a comics.txt table of contents.
 
 	Args:
-		source: Path to the directory with individual chapters.
-		destination: Path to the directory to place the table of contents.
+		chapters: List of paths to individual chapters.
+		destination: Path to the directory to place the .cbc file.
 		txt: Path to the comics.txt table of contents file.
+		title: Title of the comic work.
 
 	Returns:
 		Path to the generated cbc file.
 	"""
-	cbc = os.path.join(destination, "{0}.cbc".format(os.path.basename(os.path.normpath(source))))
+	cbc = os.path.join(destination, "{0}.cbc".format(title))
 	cbc_zip_file = ZipFile(cbc, "w", ZIP_STORED)
-	with os.scandir(source) as it:
-		for entry in sorted(list(it), key=lambda x: x.name):
-			if entry.is_file() and entry.name.endswith(".cbz"):
-				cbc_zip_file.write(entry.path, entry.name)
+	for chapter in chapters:
+		filename = os.path.basename(chapter)
+		cbc_zip_file.write(chapter, filename)
 	cbc_zip_file.write(txt, os.path.basename(os.path.normpath(txt)))
 	return cbc
 

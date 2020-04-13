@@ -108,7 +108,7 @@ class Library:
             return True
         return False
 
-    def get_comic_epub_command(self, source, destination, cover):
+    def get_comic_epub_command(self, source, destination, cover, metadata):
         """
         Get the command for converting a comic to EPUB.
 
@@ -116,6 +116,7 @@ class Library:
             source: Path to the file to convert from.
             destination: Path to the file to convert to.
             cover: Path to the cover file to use.
+            metadata: Metadata object for the work.
 
         Returns:
             List[str]: Command list for converting comics to EPUB.
@@ -124,7 +125,7 @@ class Library:
             cover_option = []
         else:
             cover_option = ["--cover", cover]
-        return [*self._calibre_settings["convert"], *[source, destination], *self._calibre_settings["convert-comic-epub"], *cover_option]
+        return [*self._calibre_settings["convert"], *[source, destination], *self._calibre_settings["convert-comic-epub"], *cover_option, *metadata.get_build_command_options()]
 
     def get_text_epub_command(self, source, destination, cover, metadata):
         """
@@ -157,24 +158,28 @@ class Library:
         """
         return [*self._calibre_settings["viewer"], *[epub]]
 
-    def build_comic_epub(self, source, destination):
+    def build_comic_epub(self, source, destination, metadata):
         """
         Build a comic EPUB.
 
         Args:
             source: Path to the directory with individual chapters.
             destination: Path to the directory to place the EPUB.
+            metadata: Metadata object for the work.
 
         Returns:
             Nothing.
         """
-        txt = generate_comic_table_of_contents(source, destination)
+        title = os.path.basename(os.path.normpath(source))
+        chapters = [os.path.join(source, chapter) for chapter in metadata.chapters]
+
+        txt = generate_comic_table_of_contents(chapters, destination)
         cover = find_cover(source, self._covers)
-        cbc = generate_cbc(source, destination, txt)
-        command = self.get_comic_epub_command(cbc, "{0}.epub".format(os.path.splitext(cbc)[0]), cover)
+        cbc = generate_cbc(chapters, destination, txt, title)
+        command = self.get_comic_epub_command(cbc, "{0}.epub".format(os.path.splitext(cbc)[0]), cover, metadata)
         subprocess.run(command)
-        os.remove(txt)
-        os.remove(cbc)
+        # os.remove(txt)
+        # os.remove(cbc)
     
     def build_text_epub(self, source, destination, metadata):
         """
@@ -213,7 +218,7 @@ class Library:
         source = os.path.abspath(os.path.join(self._root_directory, grouping.value, work))
         destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self._output_directory))
         if self.is_comic(grouping):
-            self.build_comic_epub(source, destination)
+            self.build_comic_epub(source, destination, metadata)
         elif self.is_text(grouping):
             self.build_text_epub(source, destination, metadata)
     
@@ -290,11 +295,16 @@ class Library:
                 return Metadata(**json.load(f))
         else:
             chapters = []
-            if self.is_text(grouping):
+            if self.is_comic(grouping):
+                with os.scandir(work_directory) as it:
+                    for entry in sorted(it, key=lambda e: e.name):
+                        if entry.is_file() and entry.name.endswith(".cbz"):
+                            chapters.append(entry.name)
+            elif self.is_text(grouping):
                 with os.scandir(work_directory) as it:
                     for entry in sorted(it, key=lambda e: e.name):
                         if entry.is_file() and entry.name.endswith(".html"):
-                            chapters.append(entry.path)
+                            chapters.append(entry.name)
             return Metadata(chapters=chapters)
     
     def save_metadata(self, grouping, work, metadata):
