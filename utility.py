@@ -44,18 +44,18 @@ def txt_to_html(txt, entities, css):
 
 	return html
 
-def generate_text_table_of_contents(source, destination):
+def generate_text_table_of_contents(chapters, destination, title):
 	"""
 	Generates a table of contents for text works.
 
 	Args:
-		source: Path to the directory with individual chapters.
+		chapters: List of paths to individual chapters.
 		destination: Path to the directory to place the table of contents.
+		title: Title of the text work.
 
 	Returns:
 		Path to the generated table of contents.
 	"""
-	title = os.path.basename(os.path.normpath(source))
 	content = "<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset=\"utf-8\">\n"
 	content += "\t<title>{0}</title>\n".format(title)
 	content += "</head>\n"
@@ -64,19 +64,17 @@ def generate_text_table_of_contents(source, destination):
 	content += "\t<h2>Table Of Contents</h2>\n"
 	content += "\t<p>\n"
 
-	with os.scandir(source) as it:
-		for entry in sorted(it, key=lambda e: e.name):
-			if entry.is_file() and entry.name.endswith(".html"):
-				with open(entry.path, "r", encoding="utf-8-sig") as html_chapter:
-					html_content = html_chapter.read()
-					start = html_content.find("<title>")
-					end = html_content.find("</title>")
-					length = len("<title>")
-					if start == -1 or end == -1 or html_content[start + length: end].strip() == "":
-						chapter_title = "No Title"
-					else:
-						chapter_title = html_content[start + length: end].strip()
-					content += "\t\t<a href=\"{0}\">{1}</a><br>\n".format("file:///" + entry.path, chapter_title)
+	for chapter in chapters:
+		with open(chapter, "r", encoding="utf-8-sig") as html_chapter:
+			html_content = html_chapter.read()
+			start = html_content.find("<title>")
+			end = html_content.find("</title>")
+			length = len("<title>")
+			if start == -1 or end == -1 or html_content[start + length: end].strip() == "":
+				chapter_title = "No Title"
+			else:
+				chapter_title = html_content[start + length: end].strip()
+			content += "\t\t<a href=\"{0}\">{1}</a><br>\n".format("file:///" + chapter, chapter_title)
 
 	content += "\t</p>\n"
 	content += "</body>\n"

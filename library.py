@@ -126,7 +126,7 @@ class Library:
             cover_option = ["--cover", cover]
         return [*self._calibre_settings["convert"], *[source, destination], *self._calibre_settings["convert-comic-epub"], *cover_option]
 
-    def get_text_epub_command(self, source, destination, cover):
+    def get_text_epub_command(self, source, destination, cover, metadata):
         """
         Get the command for converting a text to EPUB.
 
@@ -134,6 +134,7 @@ class Library:
             source: Path to the file to convert from.
             destination: Path to the file to convert to.
             cover: Path to the cover file to use.
+            metadata: Metadata object for the work.
 
         Returns:
             Command list for converting comics to EPUB.
@@ -142,7 +143,7 @@ class Library:
             cover_option = []
         else:
             cover_option = ["--cover", cover]
-        return [*self._calibre_settings["convert"], *[source, destination], *self._calibre_settings["convert-html-epub"], *cover_option]
+        return [*self._calibre_settings["convert"], *[source, destination], *self._calibre_settings["convert-html-epub"], *cover_option, *metadata.get_build_command_options()]
 
     def get_view_epub_command(self, epub):
         """
@@ -175,21 +176,26 @@ class Library:
         os.remove(txt)
         os.remove(cbc)
     
-    def build_text_epub(self, source, destination):
+    def build_text_epub(self, source, destination, metadata):
         """
         Build a text EPUB.
 
         Args:
             source: Path to the directory with individual chapters.
             destination: Path to the directory to place the EPUB.
+            metadata: Metadata object for the work.
 
         Returns:
             Nothing.
         """
-        html = generate_text_table_of_contents(source, destination)
+        title = os.path.basename(os.path.normpath(source))
+        chapters = [os.path.join(source, chapter) for chapter in metadata.chapters]
+
+        html = generate_text_table_of_contents(chapters, destination, title)
         cover = find_cover(source, self._covers)
-        command = self.get_text_epub_command(html, "{0}.epub".format(os.path.splitext(html)[0]), cover)
+        command = self.get_text_epub_command(html, "{0}.epub".format(os.path.splitext(html)[0]), cover, metadata)
         subprocess.run(command)
+        
         os.remove(html)
     
     def build_epub(self, grouping, work):
@@ -203,12 +209,13 @@ class Library:
         Returns:
             Nothing.
         """
+        metadata = self.load_metadata(grouping, work)
         source = os.path.abspath(os.path.join(self._root_directory, grouping.value, work))
         destination = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, self._output_directory))
         if self.is_comic(grouping):
             self.build_comic_epub(source, destination)
         elif self.is_text(grouping):
-            self.build_text_epub(source, destination)
+            self.build_text_epub(source, destination, metadata)
     
     def open_epub(self, grouping, work):
         """
@@ -276,10 +283,19 @@ class Library:
         Returns:
             Metadata: The metadata.
         """
-        metadata_json_file = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, "metadata.json"))
+        work_directory = os.path.join(self._root_directory, grouping.value, work)
+        metadata_json_file = os.path.abspath(os.path.join(work_directory, "metadata.json"))
         if os.path.isfile(metadata_json_file):
             with open(metadata_json_file, "r") as f:
                 return Metadata(**json.load(f))
+        else:
+            chapters = []
+            if self.is_text(grouping):
+                with os.scandir(work_directory) as it:
+                    for entry in sorted(it, key=lambda e: e.name):
+                        if entry.is_file() and entry.name.endswith(".html"):
+                            chapters.append(entry.path)
+            return Metadata(chapters=chapters)
     
     def save_metadata(self, grouping, work, metadata):
         """

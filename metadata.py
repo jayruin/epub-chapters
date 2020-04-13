@@ -41,4 +41,31 @@ class Metadata:
     chapters: List[str]=None
 
     def to_json(self):
+        """
+        Return JSON representation of self.
+
+        Args:
+            Nothing.
+
+        Returns:
+            JSON representation of self as a str.
+        """
         return json.dumps({k: v for k, v in self.__dict__.items() if v}, indent=4)
+    
+    def get_build_command_options(self):
+        """
+        Get the command line options for building an EPUB using self.
+
+        Args:
+            Nothing
+
+        Returns:
+            Command line options for building an EPUB using self.
+        """
+        options = []
+        exclusions = ["chapters"]
+        for k, v in self.__dict__.items():
+            if v and k not in exclusions:
+                options.append("--{0}".format(k).replace("_", "-"))
+                options.append(v)
+        return options
