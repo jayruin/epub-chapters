@@ -7,7 +7,7 @@ import re
 from zipfile import *
 from html.entities import *
 
-def txt_to_html(txt, entities, css):
+def txt_to_html(txt, entities, css, destination):
 	"""
 	Converts plaintext txt to html and saves it with given css file.
 
@@ -15,6 +15,7 @@ def txt_to_html(txt, entities, css):
 		txt: Plaintext to convert.
 		entities: List of UTF-8 characters to replace with HTML entities.
 		css: Path to the CSS file to include in the HTML output file.
+		destination: Path to the directory the html output will be placed in.
 
 	Returns:
 		Converted HTML text.
@@ -23,7 +24,7 @@ def txt_to_html(txt, entities, css):
 	content = txt.strip().split("\n\n")
 
 	html = "<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset=\"utf-8\">\n"
-	html += "\t<link rel=\"stylesheet\" href=\"{0}\">\n".format("file:///" + os.path.abspath(css))
+	html += f"\t<link rel=\"stylesheet\" href=\"{os.path.relpath(css_file, destination)}\">\n"
 	html += "\t<title>" + content[0] + "</title>\n"
 	html += "</head>\n"
 	html += "<body>\n"
@@ -177,7 +178,7 @@ def import_texts(sources, destination, css):
 			if ext == ".txt":
 				with open(source, "r", encoding="utf-8-sig") as txt:
 					with open(os.path.join(destination, "{0}.html".format(os.path.splitext(os.path.basename(os.path.normpath(source)))[0])), "w", encoding="utf-8") as html:
-						html.write(txt_to_html(txt.read(), entities, css))
+						html.write(txt_to_html(txt.read(), entities, css, destination))
 			elif ext == ".html":
 				shutil.copy(source, os.path.join(destination, os.path.basename(os.path.normpath(source))))
 
@@ -211,6 +212,6 @@ def fix_css(html_file, new_css_file):
 	pattern = re.compile(r"<link rel=\"stylesheet\" href=\"(?:.*?)\">")
 	with open(html_file, "r", encoding="utf-8-sig") as f:
 		html_content = f.read()
-	new_html_content = pattern.sub(f"<link rel=\"stylesheet\" href=\"file:///{os.path.abspath(new_css_file)}\">", html_content)
+	new_html_content = pattern.sub(f"<link rel=\"stylesheet\" href=\"{os.path.relpath(new_css_file, os.path.dirname(html_file))}\">", html_content)
 	with open(html_file, "w", encoding="utf-8-sig") as f:
 		f.write(new_html_content)
