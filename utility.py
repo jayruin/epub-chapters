@@ -3,6 +3,7 @@ import os.path
 import math
 import subprocess
 import shutil
+import re
 from zipfile import *
 from html.entities import *
 
@@ -195,3 +196,21 @@ def find_cover(folder, cover_names):
 		if os.path.isfile(os.path.join(folder, candidate_cover)):
 			return os.path.abspath(os.path.join(folder, candidate_cover))
 	return None
+
+def fix_css(html_file, new_css_file):
+	"""
+	Fix the absolute css paths in a given html file.
+
+	Args:
+		html_file: Path to the html file.
+		new_css_file: Path to the new css file.
+
+	Returns:
+		Nothing
+	"""
+	pattern = re.compile(r"<link rel=\"stylesheet\" href=\"(?:.*?)\">")
+	with open(html_file, "r", encoding="utf-8-sig") as f:
+		html_content = f.read()
+	new_html_content = pattern.sub(f"<link rel=\"stylesheet\" href=\"file:///{os.path.abspath(new_css_file)}\">", html_content)
+	with open(html_file, "w", encoding="utf-8-sig") as f:
+		f.write(new_html_content)

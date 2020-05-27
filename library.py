@@ -322,3 +322,23 @@ class Library:
         metadata_json_file = os.path.abspath(os.path.join(self._root_directory, grouping.value, work, "metadata.json"))
         with open(metadata_json_file, "w") as f:
             f.write(metadata.to_json())
+    
+    def regenerate(self):
+        """
+        Regenerate library absolute paths.
+
+        Args:
+            None
+        Returns:
+            Nothing        
+        """
+        for text_grouping in self._texts:
+            text_grouping_dir = os.path.join(self._root_directory, text_grouping)
+            with os.scandir(text_grouping_dir) as it:
+                for entry in it:
+                    if entry.is_dir():
+                        text_work_dir = os.path.join(text_grouping_dir, entry.name)
+                        with os.scandir(text_work_dir) as it:
+                            for entry in it:
+                                if entry.name.endswith(".html"):
+                                    fix_css(entry.path, self._css_file)

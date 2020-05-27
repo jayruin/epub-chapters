@@ -23,7 +23,7 @@ class Builder(QMainWindow):
         self.mainLayout = QGridLayout()
         self.mainWidget = QWidget()
         self.mainWidget.setLayout(self.mainLayout)
-        self.setCentralWidget(self.mainWidget);
+        self.setCentralWidget(self.mainWidget)
 
         self.createMenu()
         self.createHeader()
@@ -47,6 +47,10 @@ class Builder(QMainWindow):
         browseAction = QAction("Browse", self)
         browseAction.triggered.connect(self.browse)
         mainMenu.addAction(browseAction)
+        
+        regenerateAction = QAction("Regenerate", self)
+        regenerateAction.triggered.connect(self.library.regenerate)
+        mainMenu.addAction(regenerateAction)
 
     def createHeader(self):
         layout = QHBoxLayout()
