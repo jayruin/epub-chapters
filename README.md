@@ -1,5 +1,7 @@
 # epub-chapters
 
+Deprecated in favor of **[web-epubs](https://github.com/jayruin/web-epubs-public)**
+
 ## About
 
 Built on PySide2 for Python 3.7+.
